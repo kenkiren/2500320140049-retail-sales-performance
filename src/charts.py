@@ -121,3 +121,28 @@ def target_comparison_figure(store_results):
         margin={"l": 10, "r": 10, "t": 20, "b": 10},
     )
     return figure
+
+
+def scatter_figure(frame, x, y, color=None, title=None):
+    """Create an optional scatter chart from prepared data."""
+    figure = go.Figure()
+    if color and color in frame:
+        for value in frame[color].dropna().unique():
+            subset = frame.loc[frame[color] == value]
+            figure.add_trace(go.Scatter(
+                x=subset[x], y=subset[y], mode="markers",
+                name=str(value), opacity=0.65,
+                hovertemplate=f"%{{x:.2f}}<br>%{{y:.2f}}<extra>{value}</extra>",
+            ))
+    else:
+        figure.add_trace(go.Scatter(
+            x=frame[x], y=frame[y], mode="markers", name=title or y,
+            opacity=0.65,
+        ))
+    figure.update_layout(
+        title=title,
+        xaxis_title=x,
+        yaxis_title=y,
+        margin={"l": 10, "r": 10, "t": 30, "b": 10},
+    )
+    return figure
