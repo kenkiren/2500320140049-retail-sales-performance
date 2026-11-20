@@ -73,3 +73,51 @@ def seasonal_index_figure(seasonality):
         margin={"l": 10, "r": 10, "t": 20, "b": 10},
     )
     return figure
+
+
+def profitability_comparison_figure(metrics, dimension):
+    """Compare revenue, cost and profit for a prepared business dimension."""
+    figure = go.Figure()
+    for column, color in (
+        ("revenue", "#2563EB"),
+        ("cost_amount", "#64748B"),
+        ("profit", "#0F766E"),
+    ):
+        figure.add_trace(
+            go.Bar(
+                x=metrics[dimension],
+                y=metrics[column],
+                name=column.replace("_", " ").title(),
+                marker_color=color,
+                hovertemplate="%{x}<br>₹%{y:,.2f}<extra></extra>",
+            )
+        )
+    figure.update_layout(
+        barmode="group",
+        xaxis_title=None,
+        yaxis_title="INR",
+        margin={"l": 10, "r": 10, "t": 20, "b": 10},
+    )
+    return figure
+
+
+def target_comparison_figure(store_results):
+    """Compare filtered actual revenue with the corresponding monthly targets."""
+    figure = go.Figure()
+    for column, color in (("actual", "#2563EB"), ("target", "#94A3B8")):
+        figure.add_trace(
+            go.Bar(
+                x=store_results["store_name"],
+                y=store_results[column],
+                name=column.title(),
+                marker_color=color,
+                hovertemplate="%{x}<br>₹%{y:,.2f}<extra></extra>",
+            )
+        )
+    figure.update_layout(
+        barmode="group",
+        xaxis_title=None,
+        yaxis_title="INR",
+        margin={"l": 10, "r": 10, "t": 20, "b": 10},
+    )
+    return figure

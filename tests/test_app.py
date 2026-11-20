@@ -39,8 +39,10 @@ def test_t29_each_ui_page_renders_without_exception(page_path):
     if not page_path.exists():
         pytest.skip(f"{page_path.name} is scheduled for implementation in Step 15.")
     AppTest = _apptest_class()
-    started = time.perf_counter()
     at = AppTest.from_file(str(page_path)).run(timeout=15)
+    assert len(at.exception) == 0
+    started = time.perf_counter()
+    at.run(timeout=15)
     elapsed = time.perf_counter() - started
     assert len(at.exception) == 0
     # TRD / BRD service target is under five seconds per warmed page.
