@@ -72,3 +72,30 @@ def test_t31_all_eight_ui_page_files_exist_for_navigation():
     if missing:
         pytest.skip("Step 15 page scaffolding is pending: " + ", ".join(missing))
     assert len(PAGE_PATHS) == 8
+
+
+def test_t33_safe_aggregate_export_matches_preview_and_excludes_customer_fields():
+    from io import BytesIO
+    import pandas as pd
+    from src.export import build_safe_aggregate, export_preview_csv
+
+    frame = pd.DataFrame([
+        {"customer_id": 1, "category": "Home", "quantity": 2,
+         "selling_unit_price": 100, "cost_price": 60},
+        {"customer_id": 2, "category": "Home", "quantity": 1,
+         "selling_unit_price": 50, "cost_price": 30},
+        {"customer_id": 3, "category": "Apparel", "quantity": 1,
+         "selling_unit_price": 80, "cost_price": 50},
+    ])
+    preview = build_safe_aggregate(frame)
+    assert len(preview) == 2
+    assert preview["revenue"].sum() == 330
+    csv_bytes = export_preview_csv(preview)
+    exported = pd.read_csv(BytesIO(csv_bytes))
+    assert exported.columns.tolist() == preview.columns.tolist()
+    assert len(exported) == len(preview)
+    assert exported["revenue"].sum() == preview["revenue"].sum()
+    forbidden = {
+        "customer_id", "customer_name", "phone", "email", "address",
+    }
+    assert forbidden.isdisjoint(set(exported.columns.str.lower()))
