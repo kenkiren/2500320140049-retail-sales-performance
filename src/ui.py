@@ -13,7 +13,10 @@ from datetime import date
 from html import escape
 from typing import Any, Iterable
 
+import pandas as pd
 import streamlit as st
+
+from src.db import load_analysis_data
 
 try:
     # Streamlit 1.40.2-compatible API.
@@ -47,6 +50,30 @@ _FALLBACK_CSS = """
   .rs-insight-body { font-size:12px; line-height:1.5; margin:0; }
 </style>
 """
+
+
+@st.cache_data(show_spinner="Loading sales analysis data...")
+def load_analysis_data_cached() -> pd.DataFrame:
+    """Cache the canonical read-only analysis view across page reruns."""
+    return load_analysis_data()
+
+
+def render_analysis_filters(dataframe: pd.DataFrame) -> dict[str, Any]:
+    """Render the common five filters using choices present in the dataset."""
+    dates = pd.to_datetime(dataframe["sale_date"], errors="coerce").dropna()
+    if dates.empty:
+        raise ValueError("The analysis dataset contains no valid sale dates")
+    store_columns = ["store_id", "store_name", "region"]
+    stores = dataframe[store_columns].drop_duplicates("store_id").to_dict("records")
+    return render_global_filters(
+        date_min=dates.min().date(),
+        date_max=dates.max().date(),
+        regions=sorted(dataframe["region"].dropna().unique().tolist()),
+        stores=stores,
+        categories=sorted(dataframe["category"].dropna().unique().tolist()),
+        channels=("In-store", "Online"),
+    )
+
 
 def _render_trusted_html(markup: str, height: int, accessible_name: str) -> None:
     """Render authored HTML. Never pass untrusted database/user HTML here."""

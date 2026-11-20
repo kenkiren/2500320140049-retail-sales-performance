@@ -394,7 +394,7 @@ def calculate_equal_period_comparison(
         changes[key] = {
             "absolute_change": current_value - previous_value,
             "pct_change": (
-                (current_value - previous_value) / abs(previous_value) * 100
+                (current_value - previous_value) / previous_value * 100
                 if previous_value
                 else np.nan
             ),

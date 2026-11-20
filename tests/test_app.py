@@ -61,7 +61,7 @@ def test_t30_overview_initialises_shared_filter_state():
         "ui_global_category",
         "ui_global_channel",
     }
-    actual_keys = set(at.session_state)
+    actual_keys = set(at.session_state.filtered_state)
     assert expected_keys.issubset(actual_keys)
 
 
