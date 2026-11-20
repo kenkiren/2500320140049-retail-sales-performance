@@ -150,6 +150,36 @@ def render_chart_card(title: str, figure: Any, note: str = "") -> None:
         st.plotly_chart(figure, use_container_width=True)
 
 
+def render_data_table(dataframe: pd.DataFrame, formatters=None) -> None:
+    """Render a small, static, escaped HTML table without Arrow serialization."""
+    formatters = formatters or {}
+    headers = "".join(
+        f"<th scope=\"col\">{escape(str(column))}</th>"
+        for column in dataframe.columns
+    )
+    rows = []
+    for row in dataframe.itertuples(index=False, name=None):
+        cells = []
+        for column, value in zip(dataframe.columns, row):
+            if pd.isna(value):
+                display = "—"
+            elif column in formatters:
+                display = str(formatters[column](value))
+            elif isinstance(value, (date, pd.Timestamp)):
+                display = value.strftime("%Y-%m-%d")
+            elif isinstance(value, (int, float)):
+                display = f"{value:,}" if isinstance(value, int) else f"{value:,.2f}"
+            else:
+                display = str(value)
+            cells.append(f"<td>{escape(display)}</td>")
+        rows.append("<tr>" + "".join(cells) + "</tr>")
+    body = "".join(rows)
+    st.markdown(
+        f"<table><thead><tr>{headers}</tr></thead><tbody>{body}</tbody></table>",
+        unsafe_allow_html=True,
+    )
+
+
 def render_insight_box(
     title: str,
     body: str,

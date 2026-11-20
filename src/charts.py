@@ -54,3 +54,22 @@ def category_revenue_figure(categories):
         margin={"l": 10, "r": 10, "t": 20, "b": 10},
     )
     return figure
+
+
+def seasonal_index_figure(seasonality):
+    """Create the 12-calendar-month seasonal-index chart."""
+    figure = go.Figure(
+        go.Bar(
+            x=seasonality["month"],
+            y=seasonality["seasonal_index"],
+            marker_color="#0F766E",
+            hovertemplate="%{x}<br>Index: %{y:.3f}<extra></extra>",
+        )
+    )
+    figure.add_hline(y=1, line_dash="dash", line_color="#64748B")
+    figure.update_layout(
+        xaxis_title="Calendar month",
+        yaxis_title="Index (1.0 = average month)",
+        margin={"l": 10, "r": 10, "t": 20, "b": 10},
+    )
+    return figure
