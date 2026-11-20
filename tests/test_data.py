@@ -157,7 +157,7 @@ def test_t09_step10_raw_quality_register_accounts_for_all_505_logged_issues():
         "Duplicate record": 2,
         "Extreme outlier": 3,
     }
-    assert raw["line_id"].duplicated(keep=False).sum() == 2
+    assert raw["line_id"].duplicated(keep="first").sum() == 2
     assert int(raw[["payment_mode", "channel"]].isna().sum().sum()) == 500
 
 
