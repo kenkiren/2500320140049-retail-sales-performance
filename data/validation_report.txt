@@ -1,0 +1,68 @@
+RETAIL SALES PERFORMANCE ANALYSIS — STEP 10 VALIDATION REPORT
+Synthetic data only | Random seed: 42 | Currency: INR
+Organisation: ShopSphere Retail Pvt. Ltd. (fictional), Noida
+Date coverage: 2024-01-01 to 2025-12-31
+
+1. CANONICAL TABLE ROW COUNTS
+  stores: 12 rows; 7 columns
+  products: 150 rows; 8 columns
+  customers: 2,000 rows; 5 columns
+  sales_lines: 20,000 rows; 12 columns
+  store_targets: 288 rows; 4 columns
+  v_sales_analysis: 20,000 rows; 38 columns
+
+2. DATABASE / RANGE VALIDATION
+  [PASS] stores row count: expected=12; actual=12
+  [PASS] products row count: expected=150; actual=150
+  [PASS] customers row count: expected=2000; actual=2000
+  [PASS] sales_lines row count: expected=20000; actual=20000
+  [PASS] store_targets row count: expected=288; actual=288
+  [PASS] Foreign-key check: violations=0
+  [PASS] SQLite integrity: ok
+  [PASS] Joined view column count: columns=38
+  [PASS] Required sales fields: null required values=0
+  [PASS] Sales range / pricing checks: invalid rows=0
+  [PASS] Unique store-month targets: duplicate store-month keys=0
+  [PASS] 24-month date coverage: min=2024-01-01; max=2025-12-31
+  [PASS] Excel sample stores: first 10 rows read; columns exact=True
+  [PASS] Excel sample products: first 10 rows read; columns exact=True
+  [PASS] Excel sample customers: first 10 rows read; columns exact=True
+  [PASS] Excel sample sales_lines: first 10 rows read; columns exact=True
+  [PASS] Excel sample store_targets: first 10 rows read; columns exact=True
+  [PASS] Quality issues staged: 500 missing-value rows + 2 duplicate rows + 3 outlier rows = 505 issue records
+  [PASS] Clean output sales row count: raw staging rows=20002; cleaned rows=20000
+
+  PRAGMA foreign_key_check results: []
+  PRAGMA integrity_check: ok
+
+3. RAW STAGING QUALITY ISSUES AND CLEANING
+  Raw sales staging rows: 20,002
+  Missing values: 500 rows affected (2.5% of 20,000 original sales lines), in payment_mode/channel.
+  Duplicates: 2 duplicate line_id records appended to raw staging; removed by keeping first occurrence.
+  Outliers: 3 numeric extremes (quantity 999, quantity 888, list_unit_price 999999); repaired using product-level reference/median.
+  Clean canonical sales_lines rows: 20,000
+  The raw staging file is intentionally not loaded into SQLite. Only cleaned, schema-valid records are loaded.
+
+4. PATTERNS ENCODED AND DIAGNOSTICS
+  PAT-01: festive season uplift in October–December.
+  PAT-02: Friday–Sunday sales uplift.
+  PAT-03: online channel share increases from 2024 to 2025.
+  PAT-04: discount/quantity and discount/margin trade-off.
+  PAT-05: stores 1–4 above target, 5–8 near target, 9–12 below target.
+  Observed: Oct-Dec average total revenue/month=8,952,730.36; other-month average=6,614,449.02; peak uplift=35.4%.
+  Observed: Fri-Sun average daily revenue=132,251.37; Mon-Thu=107,698.82; weekend uplift=22.8%.
+  Observed: Online share: 2024=28.7%; 2025=35.4%.
+  Observed: Correlation(discount_pct, quantity)=0.205; correlation(discount_pct, margin_pct)=-0.386.
+  Observed: Mean target achievement: stores 1-4=107.9%; 5-8=99.1%; 9-12=89.9%.
+
+5. EXCEL 10-ROW BELIEVABILITY CHECK
+  [PASS] stores: read back 10 rows; exact columns matched.
+  [PASS] products: read back 10 rows; exact columns matched.
+  [PASS] customers: read back 10 rows; exact columns matched.
+  [PASS] sales_lines: read back 10 rows; exact columns matched.
+  [PASS] store_targets: read back 10 rows; exact columns matched.
+
+6. IMPORTANT MODEL LIMITATION
+  Step 8 specifies products.cost_price at product level. It is static across the 24-month period; historical cost changes are not represented.
+  Step 9 recommended unit_cost_at_sale as a future schema enhancement, but Step 10 preserves the exact Step 8 table/column design as requested.
+  Do not sum target_revenue from the line-grain v_sales_analysis view; aggregate sales to store-month and join to store_targets once.

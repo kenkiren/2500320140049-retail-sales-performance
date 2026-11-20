@@ -1,0 +1,56 @@
+erDiagram
+    STORES ||--o{ SALES_LINES : "records sales at"
+    PRODUCTS ||--o{ SALES_LINES : "is sold on"
+    CUSTOMERS ||--o{ SALES_LINES : "is associated with"
+    STORES ||--o{ STORE_TARGETS : "sets monthly targets for"
+
+    STORES {
+        INTEGER store_id PK
+        TEXT store_name UK
+        TEXT city
+        TEXT region
+        TEXT store_format
+        TEXT opened_on
+        INTEGER is_active
+    }
+
+    PRODUCTS {
+        INTEGER product_id PK
+        TEXT product_name
+        TEXT category
+        TEXT sub_category
+        TEXT brand
+        NUMERIC cost_price
+        NUMERIC base_list_price
+        INTEGER is_active
+    }
+
+    CUSTOMERS {
+        INTEGER customer_id PK
+        TEXT segment
+        TEXT city
+        TEXT joined_on
+        INTEGER is_active
+    }
+
+    SALES_LINES {
+        INTEGER line_id PK
+        TEXT order_id
+        TEXT sale_date
+        INTEGER store_id FK
+        INTEGER product_id FK
+        INTEGER customer_id FK
+        INTEGER quantity
+        NUMERIC list_unit_price
+        NUMERIC discount_pct
+        NUMERIC selling_unit_price
+        TEXT payment_mode
+        TEXT channel
+    }
+
+    STORE_TARGETS {
+        INTEGER target_id PK
+        INTEGER store_id FK
+        TEXT target_month
+        NUMERIC target_revenue
+    }
