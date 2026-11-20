@@ -1,6 +1,7 @@
 """UI-07 — canonical and raw staging data-quality evidence."""
 
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 import pandas as pd
@@ -20,7 +21,8 @@ raw = pd.read_csv(DATA / "sales_lines_raw_with_issues.csv")
 issues = pd.read_csv(DATA / "data_quality_issues.csv")
 report_path = DATA / "validation_report.txt"
 
-with sqlite3.connect(f"file:{(DATA / 'app.db').as_posix()}?mode=ro", uri=True) as connection:
+database_uri = (DATA / "app.db").resolve().as_uri() + "?mode=ro"
+with closing(sqlite3.connect(database_uri, uri=True)) as connection:
     canonical_rows = connection.execute("SELECT COUNT(*) FROM sales_lines").fetchone()[0]
     duplicate_keys = connection.execute(
         "SELECT COUNT(*) FROM (SELECT line_id FROM sales_lines GROUP BY line_id HAVING COUNT(*) > 1)"
